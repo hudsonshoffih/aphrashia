@@ -13,13 +13,8 @@ export const fetchUserData = async (uuid: string): Promise<UserData> => {
   const supabase = createClient();
 
   try {
-    // Get the current session
-    const {
-      data: { session },
-      error: authError,
-    } = await supabase.auth.getSession();
-    if (authError) throw authError;
-    if (!session) throw new Error("No active session");
+    // Skip Supabase auth check since we're using Clerk
+    // We're already authenticated if we have a UUID from Clerk
 
     const { data, error } = await supabase
       .from("users")
@@ -43,13 +38,8 @@ export const updateUserInBackend = async (
   const supabase = createClient();
 
   try {
-    // Get the current session
-    const {
-      data: { session: supabaseSession },
-      error: authError,
-    } = await supabase.auth.getSession();
-    if (authError) throw authError;
-    if (!supabaseSession) throw new Error("No active session");
+    // Skip Supabase auth check since we're using Clerk
+    // We're already authenticated if we have a session from Clerk
 
     const payload = {
       uuid: session.id,

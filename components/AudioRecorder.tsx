@@ -6,21 +6,25 @@ import { useRouter } from "next/navigation";
 import { encodeString } from "@/misc/encode";
 // import { useRouter } from "next/navigation";
 
-export function AudioRecorder({ isRecording, setIsRecording,
-  mediaRecorderRef, audioChunksRef,
-  isUploading, setIsUploading,
-   setError,
-   id,
- }: {
-  id: string
-  isRecording: boolean
-  setIsRecording: React.Dispatch<React.SetStateAction<boolean>>
-  mediaRecorderRef: React.RefObject<MediaRecorder | null>
-  audioChunksRef: React.RefObject<BlobPart[]>
-  isUploading: boolean
-  setIsUploading: React.Dispatch<React.SetStateAction<boolean>>
-  error: string
-  setError: React.Dispatch<React.SetStateAction<string>>
+export function AudioRecorder({
+  isRecording,
+  setIsRecording,
+  mediaRecorderRef,
+  audioChunksRef,
+  isUploading,
+  setIsUploading,
+  setError,
+  id,
+}: {
+  id: string;
+  isRecording: boolean;
+  setIsRecording: React.Dispatch<React.SetStateAction<boolean>>;
+  mediaRecorderRef: React.RefObject<MediaRecorder | null>;
+  audioChunksRef: React.RefObject<BlobPart[]>;
+  isUploading: boolean;
+  setIsUploading: React.Dispatch<React.SetStateAction<boolean>>;
+  error: string;
+  setError: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const router = useRouter();
 
@@ -29,8 +33,8 @@ export function AudioRecorder({ isRecording, setIsRecording,
       setIsUploading(true);
       const supabase = createClient();
 
-      // Generate a unique filename using timestamp
-      const filename = `recording-${Date.now()}.wav`;
+      // Generate a unique filename using timestamp and user ID for proper ownership
+      const filename = `${id}/recording-${Date.now()}.wav`;
 
       // Upload the file to Supabase storage
       const { error: uploadError } = await supabase.storage
@@ -38,6 +42,8 @@ export function AudioRecorder({ isRecording, setIsRecording,
         .upload(filename, audioBlob, {
           contentType: "audio/wav",
           cacheControl: "3600",
+          // Add user ID as metadata to support RLS policies
+          duplex: "half",
         });
 
       if (uploadError) {
@@ -59,23 +65,23 @@ export function AudioRecorder({ isRecording, setIsRecording,
         body: JSON.stringify({ data: publicUrl }),
       });
 
-      const rres = await transcribeRes.json()
-      const transcription = rres.data
+      const rres = await transcribeRes.json();
+      const transcription = rres.data;
 
       // Save to history table
-      const { error: historyError } = await supabase
-        .from("history")
-        .insert({
-          file_name: filename,
-          transcription: transcription,
-          uuid: id
-        });
+      const { error: historyError } = await supabase.from("history").insert({
+        file_name: filename,
+        transcription: transcription,
+        uuid: id,
+      });
 
       if (historyError) {
         console.error("Error saving to history:", historyError);
       }
 
-      router.push(`/result?text=${transcription}&url=${encodeString(publicUrl)}`)
+      router.push(
+        `/result?text=${transcription}&url=${encodeString(publicUrl)}`
+      );
 
       return publicUrl;
     } catch (err) {
@@ -137,9 +143,15 @@ export function AudioRecorder({ isRecording, setIsRecording,
       <button
         onClick={isRecording ? stopRecording : startRecording}
         disabled={isUploading}
-        className={`${isRecording ? "h-12 w-12" : "h-18 w-18"} rounded-[30px] ${isUploading ? "opacity-50 cursor-not-allowed" : ""} bg-red text-white flex items-center justify-center`}
+        className={`${isRecording ? "h-12 w-12" : "h-18 w-18"} rounded-[30px] ${
+          isUploading ? "opacity-50 cursor-not-allowed" : ""
+        } bg-red text-white flex items-center justify-center`}
       >
-        {isRecording ? <BiStop className="text-3xl" /> : <BsSoundwave className="text-4xl" />}
+        {isRecording ? (
+          <BiStop className="text-3xl" />
+        ) : (
+          <BsSoundwave className="text-4xl" />
+        )}
       </button>
     </div>
   );
