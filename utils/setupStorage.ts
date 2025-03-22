@@ -41,7 +41,7 @@ export async function setupAudioStorage(clerkSessionId?: string) {
       // WARNING: This approach may not work in the browser due to RLS policies
       // Consider moving bucket creation to a server-side API route instead
       try {
-        const { data, error } = await adminClient.storage.createBucket(
+        const { error } = await adminClient.storage.createBucket(
           "audio_files",
           {
             public: false,
@@ -74,19 +74,20 @@ export async function setupAudioStorage(clerkSessionId?: string) {
         try {
           // Try to update the RLS policy for the bucket to allow authenticated users to upload
           // This might fail in browser context - should be moved to server-side
-          await adminClient
-            .rpc("create_storage_policy", {
-              bucket_name: "audio_files",
-              policy_name: "allow_authenticated_uploads",
-              definition: `(uid() = auth.uid() OR auth.role() = 'authenticated')`,
-            })
-            .catch((e) =>
-              console.warn(
-                "Failed to set policy via RPC, may need server-side setup:",
-                e
-              )
+          const policyResult = await adminClient.rpc("create_storage_policy", {
+            bucket_name: "audio_files",
+            policy_name: "allow_authenticated_uploads",
+            definition: `(uid() = auth.uid() OR auth.role() = 'authenticated')`,
+          });
+
+          // Handle errors from RPC call
+          if (policyResult.error) {
+            console.warn(
+              "Failed to set policy via RPC, may need server-side setup:",
+              policyResult.error
             );
-        } catch (policyError) {
+          }
+        } catch (policyError: unknown) {
           console.warn("Could not set bucket policies:", policyError);
         }
       } catch (bucketError) {

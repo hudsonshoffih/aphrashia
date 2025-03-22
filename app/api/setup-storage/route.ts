@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/utils/supabase";
 import { getAuth } from "@clerk/nextjs/server";
+import { NextRequest } from "next/server";
 
-export async function POST(request: NextResponse<any>) {
+export async function POST(request: NextRequest) {
   try {
     const { userId } = getAuth(request);
 
@@ -31,14 +32,11 @@ export async function POST(request: NextResponse<any>) {
     );
 
     if (!audioBucket) {
-      const { data, error } = await adminClient.storage.createBucket(
-        "audio_files",
-        {
-          public: false,
-          fileSizeLimit: 52428800, // 50MB limit
-          allowedMimeTypes: ["audio/wav", "audio/mpeg", "audio/webm"],
-        }
-      );
+      const { error } = await adminClient.storage.createBucket("audio_files", {
+        public: false,
+        fileSizeLimit: 52428800, // 50MB limit
+        allowedMimeTypes: ["audio/wav", "audio/mpeg", "audio/webm"],
+      });
 
       if (error) {
         console.error("Bucket creation error:", error);
@@ -51,17 +49,18 @@ export async function POST(request: NextResponse<any>) {
       console.log("Created audio_files bucket");
 
       try {
-        const { error: policyError } = await adminClient.storage
-          .from("audio_files")
-          .createPolicy("allow_uploads_to_own_folder", {
-            name: "Allow uploads to own folder",
-            definition: {
-              in_storage: true,
-              folder_starts_with: ["{{auth.uid}}", "{{user.id}}"],
-            },
+        // Create a policy to allow authenticated users to upload to their own folder
+        // Using RPC to create policy instead of direct method
+        const { error: policyError } = await adminClient.rpc(
+          "create_storage_policy",
+          {
+            bucket_name: "audio_files",
+            policy_name: "allow_uploads_to_own_folder",
+            definition: `((auth.uid() = folder) OR (auth.uid() IN (SELECT user_id FROM users WHERE id = folder)))`,
             allow_uploads: true,
             allow_downloads: true,
-          });
+          }
+        );
 
         if (policyError) {
           console.error("Policy creation error:", policyError);
