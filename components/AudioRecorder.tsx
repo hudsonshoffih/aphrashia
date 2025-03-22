@@ -31,63 +31,113 @@ export function AudioRecorder({
   const uploadToSupabase = async (audioBlob: Blob) => {
     try {
       setIsUploading(true);
+
+      // Validate user ID
+      if (!id) {
+        setError("Authentication error: Missing user ID");
+        console.error("Missing user ID for upload");
+        return null;
+      }
+
       const supabase = createClient();
 
-      // Generate a unique filename using timestamp and user ID for proper ownership
-      const filename = `${id}/recording-${Date.now()}.wav`;
+      // Generate a unique filename using timestamp and user ID
+      const timestamp = Date.now();
+      const filename = `${id}/recording-${timestamp}.wav`;
+
+      console.log(
+        `Attempting to upload audio file to bucket: audio_files path: ${filename}`
+      );
 
       // Upload the file to Supabase storage
-      const { error: uploadError } = await supabase.storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from("audio_files")
         .upload(filename, audioBlob, {
           contentType: "audio/wav",
           cacheControl: "3600",
-          // Add user ID as metadata to support RLS policies
-          duplex: "half",
         });
 
       if (uploadError) {
+        console.error("Upload error details:", uploadError);
+
+        // Handle specific error cases
+        if (
+          uploadError.message?.includes("bucket") &&
+          uploadError.message?.includes("not found")
+        ) {
+          setError("Storage bucket not found. Please try again later.");
+        } else if (uploadError.message?.includes("authentication")) {
+          setError("Authentication error. Please sign in again.");
+        } else if (
+          uploadError.message?.includes("permission") ||
+          uploadError.message?.includes("policy")
+        ) {
+          setError(
+            "Permission denied. You may not have access to upload files."
+          );
+        } else {
+          setError(`Upload failed: ${uploadError.message}`);
+        }
+
         throw uploadError;
       }
+
+      console.log("Upload successful:", uploadData);
 
       // Get the public URL of the uploaded file
       const {
         data: { publicUrl },
       } = supabase.storage.from("audio_files").getPublicUrl(filename);
 
-      console.log("File uploaded successfully:", publicUrl);
+      console.log("File uploaded successfully. Public URL:", publicUrl);
 
-      const transcribeRes = await fetch("/api/whisper", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ data: publicUrl }),
-      });
+      // Transcribe the audio
+      try {
+        const transcribeRes = await fetch("/api/whisper", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ data: publicUrl }),
+        });
 
-      const rres = await transcribeRes.json();
-      const transcription = rres.data;
+        if (!transcribeRes.ok) {
+          const errorData = await transcribeRes.json();
+          console.error("Transcription API error:", errorData);
+          setError(
+            `Transcription failed: ${errorData.error || "Unknown error"}`
+          );
+          return publicUrl; // Still return the URL even if transcription fails
+        }
 
-      // Save to history table
-      const { error: historyError } = await supabase.from("history").insert({
-        file_name: filename,
-        transcription: transcription,
-        uuid: id,
-      });
+        const rres = await transcribeRes.json();
+        const transcription = rres.data;
 
-      if (historyError) {
-        console.error("Error saving to history:", historyError);
+        // Save to history table
+        const { error: historyError } = await supabase.from("history").insert({
+          file_name: filename,
+          transcription: transcription,
+          uuid: id,
+        });
+
+        if (historyError) {
+          console.error("Error saving to history:", historyError);
+        }
+
+        router.push(
+          `/result?text=${transcription}&url=${encodeString(publicUrl)}`
+        );
+
+        return publicUrl;
+      } catch (transcriptionError) {
+        console.error("Transcription error:", transcriptionError);
+        setError("Error processing audio. Please try again.");
+        return publicUrl; // Still return the URL even if transcription fails
       }
-
-      router.push(
-        `/result?text=${transcription}&url=${encodeString(publicUrl)}`
-      );
-
-      return publicUrl;
     } catch (err) {
-      console.error("Error uploading file:", err);
-      setError("Error uploading recording to storage.");
-      throw err;
+      console.error("Error in upload process:", err);
+      setError("Error uploading recording. Please try again.");
+      return null;
     } finally {
       setIsUploading(false);
     }

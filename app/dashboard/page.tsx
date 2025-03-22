@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { setupAudioStorage } from "@/utils/setupStorage";
 import { UserButton, useSession } from "@clerk/nextjs";
 import { fetchUserData } from "@/utils/userApi";
 import Link from "next/link";
@@ -31,11 +30,19 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (session?.user?.id) {
-      setupAudioStorage(session.user.id).then(({ success, error }) => {
-        if (!success) {
-          console.error("Failed to setup storage:", error);
-        }
-      });
+      // Call the server-side API endpoint to set up storage
+      fetch("/api/setup-storage", {
+        method: "POST",
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (!data.success) {
+            console.error("Failed to setup storage:", data.error);
+          }
+        })
+        .catch((error) => {
+          console.error("Error calling storage setup API:", error);
+        });
     }
   }, [session]);
 

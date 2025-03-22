@@ -69,10 +69,32 @@ export async function setupAudioStorage(clerkSessionId?: string) {
         }
 
         console.log("Created audio_files bucket");
+
+        // Set bucket policies - this might fail in browser context due to RLS
+        try {
+          // Try to update the RLS policy for the bucket to allow authenticated users to upload
+          // This might fail in browser context - should be moved to server-side
+          await adminClient
+            .rpc("create_storage_policy", {
+              bucket_name: "audio_files",
+              policy_name: "allow_authenticated_uploads",
+              definition: `(uid() = auth.uid() OR auth.role() = 'authenticated')`,
+            })
+            .catch((e) =>
+              console.warn(
+                "Failed to set policy via RPC, may need server-side setup:",
+                e
+              )
+            );
+        } catch (policyError) {
+          console.warn("Could not set bucket policies:", policyError);
+        }
       } catch (bucketError) {
         console.error("Failed to create bucket:", bucketError);
         return { success: false, error: bucketError };
       }
+    } else {
+      console.log("Audio bucket already exists");
     }
 
     return { success: true };
