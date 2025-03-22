@@ -2,9 +2,8 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/utils/supabase";
 import { getAuth } from "@clerk/nextjs/server";
 
-export async function POST(request) {
+export async function POST(request: NextResponse<any>) {
   try {
-    // Get the user from Clerk
     const { userId } = getAuth(request);
 
     if (!userId) {
@@ -14,10 +13,8 @@ export async function POST(request) {
       );
     }
 
-    // Use admin client for storage operations
     const adminClient = createAdminClient();
 
-    // Create the bucket if it doesn't exist
     const { data: buckets, error: bucketsError } =
       await adminClient.storage.listBuckets();
 
@@ -53,9 +50,7 @@ export async function POST(request) {
 
       console.log("Created audio_files bucket");
 
-      // Set up RLS policies for the bucket
       try {
-        // Create a policy to allow authenticated users to upload to their own folder
         const { error: policyError } = await adminClient.storage
           .from("audio_files")
           .createPolicy("allow_uploads_to_own_folder", {
