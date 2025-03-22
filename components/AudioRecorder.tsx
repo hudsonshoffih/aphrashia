@@ -6,34 +6,51 @@ import { useRouter } from "next/navigation";
 import { encodeString } from "@/misc/encode";
 // import { useRouter } from "next/navigation";
 
-export function AudioRecorder({ isRecording, setIsRecording,
-  mediaRecorderRef, audioChunksRef,
-  isUploading, setIsUploading,
-   setError,
-   id,
- }: {
-  id: string
-  isRecording: boolean
-  setIsRecording: React.Dispatch<React.SetStateAction<boolean>>
-  mediaRecorderRef: React.RefObject<MediaRecorder | null>
-  audioChunksRef: React.RefObject<BlobPart[]>
-  isUploading: boolean
-  setIsUploading: React.Dispatch<React.SetStateAction<boolean>>
-  error: string
-  setError: React.Dispatch<React.SetStateAction<string>>
+export function AudioRecorder({
+  isRecording,
+  setIsRecording,
+  mediaRecorderRef,
+  audioChunksRef,
+  isUploading,
+  setIsUploading,
+  setError,
+  id,
+}: {
+  id: string;
+  isRecording: boolean;
+  setIsRecording: React.Dispatch<React.SetStateAction<boolean>>;
+  mediaRecorderRef: React.RefObject<MediaRecorder | null>;
+  audioChunksRef: React.RefObject<BlobPart[]>;
+  isUploading: boolean;
+  setIsUploading: React.Dispatch<React.SetStateAction<boolean>>;
+  error: string;
+  setError: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const router = useRouter();
 
   const uploadToSupabase = async (audioBlob: Blob) => {
     try {
       setIsUploading(true);
+
+      // Validate user ID
+      if (!id) {
+        setError("Authentication error: Missing user ID");
+        console.error("Missing user ID for upload");
+        return null;
+      }
+
       const supabase = createClient();
 
-      // Generate a unique filename using timestamp
-      const filename = `recording-${Date.now()}.wav`;
+      // Generate a unique filename using timestamp and user ID
+      const timestamp = Date.now();
+      const filename = `${id}/recording-${timestamp}.wav`;
+
+      console.log(
+        `Attempting to upload audio file to bucket: audio_files path: ${filename}`
+      );
 
       // Upload the file to Supabase storage
-      const { error: uploadError } = await supabase.storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from("audio_files")
         .upload(filename, audioBlob, {
           contentType: "audio/wav",
@@ -41,47 +58,86 @@ export function AudioRecorder({ isRecording, setIsRecording,
         });
 
       if (uploadError) {
+        console.error("Upload error details:", uploadError);
+
+        // Handle specific error cases
+        if (
+          uploadError.message?.includes("bucket") &&
+          uploadError.message?.includes("not found")
+        ) {
+          setError("Storage bucket not found. Please try again later.");
+        } else if (uploadError.message?.includes("authentication")) {
+          setError("Authentication error. Please sign in again.");
+        } else if (
+          uploadError.message?.includes("permission") ||
+          uploadError.message?.includes("policy")
+        ) {
+          setError(
+            "Permission denied. You may not have access to upload files."
+          );
+        } else {
+          setError(`Upload failed: ${uploadError.message}`);
+        }
+
         throw uploadError;
       }
+
+      console.log("Upload successful:", uploadData);
 
       // Get the public URL of the uploaded file
       const {
         data: { publicUrl },
       } = supabase.storage.from("audio_files").getPublicUrl(filename);
 
-      console.log("File uploaded successfully:", publicUrl);
+      console.log("File uploaded successfully. Public URL:", publicUrl);
 
-      const transcribeRes = await fetch("/api/whisper", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ data: publicUrl }),
-      });
-
-      const rres = await transcribeRes.json()
-      const transcription = rres.data
-
-      // Save to history table
-      const { error: historyError } = await supabase
-        .from("history")
-        .insert({
-          file_name: filename,
-          transcription: transcription,
-          uuid: id
+      // Transcribe the audio
+      try {
+        const transcribeRes = await fetch("/api/whisper", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ data: publicUrl }),
         });
 
-      if (historyError) {
-        console.error("Error saving to history:", historyError);
+        if (!transcribeRes.ok) {
+          const errorData = await transcribeRes.json();
+          console.error("Transcription API error:", errorData);
+          setError(
+            `Transcription failed: ${errorData.error || "Unknown error"}`
+          );
+          return publicUrl; // Still return the URL even if transcription fails
+        }
+
+        const rres = await transcribeRes.json();
+        const transcription = rres.data;
+
+        // Save to history table
+        const { error: historyError } = await supabase.from("history").insert({
+          file_name: filename,
+          transcription: transcription,
+          uuid: id,
+        });
+
+        if (historyError) {
+          console.error("Error saving to history:", historyError);
+        }
+
+        router.push(
+          `/result?text=${transcription}&url=${encodeString(publicUrl)}`
+        );
+
+        return publicUrl;
+      } catch (transcriptionError) {
+        console.error("Transcription error:", transcriptionError);
+        setError("Error processing audio. Please try again.");
+        return publicUrl; // Still return the URL even if transcription fails
       }
-
-      router.push(`/result?text=${transcription}&url=${encodeString(publicUrl)}`)
-
-      return publicUrl;
     } catch (err) {
-      console.error("Error uploading file:", err);
-      setError("Error uploading recording to storage.");
-      throw err;
+      console.error("Error in upload process:", err);
+      setError("Error uploading recording. Please try again.");
+      return null;
     } finally {
       setIsUploading(false);
     }
@@ -137,9 +193,15 @@ export function AudioRecorder({ isRecording, setIsRecording,
       <button
         onClick={isRecording ? stopRecording : startRecording}
         disabled={isUploading}
-        className={`${isRecording ? "h-12 w-12" : "h-18 w-18"} rounded-[30px] ${isUploading ? "opacity-50 cursor-not-allowed" : ""} bg-red text-white flex items-center justify-center`}
+        className={`${isRecording ? "h-12 w-12" : "h-18 w-18"} rounded-[30px] ${
+          isUploading ? "opacity-50 cursor-not-allowed" : ""
+        } bg-red text-white flex items-center justify-center`}
       >
-        {isRecording ? <BiStop className="text-3xl" /> : <BsSoundwave className="text-4xl" />}
+        {isRecording ? (
+          <BiStop className="text-3xl" />
+        ) : (
+          <BsSoundwave className="text-4xl" />
+        )}
       </button>
     </div>
   );

@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { setupAudioStorage } from "@/utils/setupStorage";
 import { UserButton, useSession } from "@clerk/nextjs";
 import { fetchUserData } from "@/utils/userApi";
 import Link from "next/link";
@@ -29,14 +28,23 @@ export default function Dashboard() {
   const [error, setError] = useState<string>("");
   const [userData, setUserData] = useState<UserData | null>(null);
 
-
   useEffect(() => {
-    setupAudioStorage().then(({ success, error }) => {
-      if (!success) {
-        console.error("Failed to setup storage:", error);
-      }
-    });
-  }, []);
+    if (session?.user?.id) {
+      // Call the server-side API endpoint to set up storage
+      fetch("/api/setup-storage", {
+        method: "POST",
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (!data.success) {
+            console.error("Failed to setup storage:", data.error);
+          }
+        })
+        .catch((error) => {
+          console.error("Error calling storage setup API:", error);
+        });
+    }
+  }, [session]);
 
   useEffect(() => {
     const updateUser = async () => {
@@ -115,8 +123,7 @@ export default function Dashboard() {
       <div className="w-[160px] h-[160px] rounded-full bg-gradient-to-tr from-primary to-secondary animate-gradient shadow-[0_0_300px] shadow-primary" />
       <div className="fixed bottom-[100px] left-0 right-0">
         <AudioRecorder
-            id={session?.user?.id || ""}
-
+          id={session?.user?.id || ""}
           isUploading={isUploading}
           setIsUploading={setIsUploading}
           error={error}
@@ -233,7 +240,7 @@ export default function Dashboard() {
           <div className="absolute top-2 w-8 h-1 rounded-full bg-grey" />
           <div className="flex flex-col gap-[22px] items-center justify-center">
             <AudioRecorder
-            id={session?.user?.id || ""}
+              id={session?.user?.id || ""}
               isUploading={isUploading}
               setIsUploading={setIsUploading}
               error={error}

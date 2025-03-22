@@ -1,20 +1,18 @@
-import withSerwistInit from "@serwist/next";
 import type { NextConfig } from "next";
 
-const revision = crypto.randomUUID();
+import withPWAInit from "@ducanh2912/next-pwa";
 
-const withSerwist = withSerwistInit({
-  cacheOnNavigation: true,
-  swSrc: "app/sw.ts",
-  swDest: "public/sw.js",
-  additionalPrecacheEntries: [{ url: "/~offline", revision }],
+const withPWA = withPWAInit({
+  dest: "public",
+  disable: process.env.NODE_ENV === "development",
 });
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   experimental: {
-    reactCompiler: true
+    reactCompiler: true,
+    viewTransition: true,
   }
 };
 
-export default withSerwist(nextConfig);
+export default withPWA(nextConfig);
