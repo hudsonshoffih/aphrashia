@@ -24,20 +24,49 @@ export default function Home() {
       </section>
       <main className="flex w-screen h-screen *:font-display max-lg:flex-col bg-white">
         <div className="flex items-start ml-2 justify-center flex-col lg:w-[70vw] xl:px-24  px-8 py-12 pt-32 xl:py-6">
-          <p className="text-md text-primary font-semibold">#HearThem</p>
-          <h1 className="text-5xl font-bold">Where AI meets lost <span className="text-primary underline">Phrases</span>.</h1>
-          <p className="text-lg font-medium mt-2 max-w-2xl opacity-70">An AI-powered tool that transcribes aphasic and muffled voices in real-time, bridging communication gaps for individuals with speech disorders and non-fluent aphasia. Designed to empower communication and break barriers</p>
-          <Link href="/dashboard" className="px-5 -ml-2 mt-8 py-3 text-lg rounded-full bg-primary/30 text-primary font-semibold">Get Started</Link>
-
+          <motion.p
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+            className="text-md text-primary font-semibold"
+          >#HearThem</motion.p>
+          <motion.h1
+            initial={{ y: 40, filter: 'blur(10px)', opacity: 0 }}
+            animate={{ y: 0, filter: 'blur(0px)', opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            viewport={{ once: true }}
+            className="text-5xl font-bold"
+          >Where AI meets lost <span className="text-primary underline">Phrases</span>.</motion.h1>
+          <motion.p
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 0.7 }}
+            transition={{
+              duration: 0.8,
+              delay: 0.4,
+              ease: [0.25, 0.1, 0.25, 1]
+            }}
+            viewport={{ once: true }}
+            className="text-lg font-medium mt-2 max-w-2xl"
+          >An AI-powered tool that transcribes aphasic and muffled voices in real-time, bridging communication gaps for individuals with speech disorders and non-fluent aphasia. Designed to empower communication and break barriers</motion.p>
+          <motion.div
+          className="mt-8"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3, delay: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <Link href="/dashboard" className="px-7 -ml-2 py-4 text-lg rounded-full bg-primary/30 text-primary font-semibold">Get Started</Link>
+          </motion.div>
         </div>
         <div className="w-screen lg:w-[35vw] h-full lg:h-screen relative flex items-center justify-center bg-[#283462]  p-1">
           <div className="md:w-[310px] md:h-[390px] w-[240px] h-[230px] bg-primary opacity-60 rounded-tl-[190px] absolute bottom-0 right-0" />
           <div className="md:w-[210px] md:h-[180px] w-[170px] h-[120px] bg-progress-blue opacity-50 rounded-l-full absolute bottom-[140px] md:bottom-[300px] right-0" />
           <div className="w-[310px] h-[390px] border-r-[32px] border-b-[32px] border-primary opacity-40 rounded-br-[200px] absolute top-0 left-0" />
-          <div className="relative">
+          <motion.div initial={{opacity:0}} animate={{opacity: 1}} transition={{ duration: 0.3, delay: 1 }} className="relative">
             <div className="w-[120px] h-[120px] md:w-[160px] md:h-[160px] rounded-full bg-gradient-to-tr from-primary to-secondary shadow-[0_0_200px] md:shadow-[0_0_300px] shadow-primary mb-8 animate-float-animation" />
-            <div className="rounded-l-full rounded-tr-full rounded-br-lg border-2 border-black absolute md:top-4 top-0 md:-left-26 -left-32 bg-white px-4 py-2 animate-float-delayed">Hi! I am Aphrasis</div>
-          </div>
+            <motion.div initial={{ opacity: 0, rotate: "2deg" }} animate={{ opacity: 1, rotate: "0deg" }} transition={{ duration: 0.3, delay: 1.3 }}  className="rounded-l-full rounded-tr-full rounded-br-lg border-2 border-black absolute md:top-4 top-0 md:-left-26 -left-32 bg-white px-4 py-2 animate-float-delayed">Hi! I am Aphrasis</motion.div>
+          </motion.div>
         </div>
       </main>
 
