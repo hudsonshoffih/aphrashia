@@ -2,6 +2,7 @@
 
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 // import { useSession } from "@clerk/nextjs";
 // import Link from "next/link";
@@ -40,15 +41,51 @@ export default function Home() {
         </div>
       </main>
 
-      <section className="w-screen min-h-screen flex items-start justify-center flex-col px-32 py-24">
-        <div className="flex justify-between w-full items-center gap-6">
+      <motion.section
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: false }}
+        transition={{ duration: 0.6 }}
+        className="w-screen min-h-screen flex items-start justify-center flex-col px-32 py-24"
+      >
+        <motion.div
+          initial={{ y: 20 }}
+          whileInView={{ y: 0 }}
+          viewport={{ once: false }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="flex justify-between w-full items-center gap-6"
+        >
           <div className="flex flex-col gap-4">
-            <h2 className="underline decoration-primary font-semibold text-4xl text-white">What is Aphrasia?</h2>
-          <p className="max-w-3xl w-full text-lg mt-3 font-medium opacity-80 text-white">Aphasia is a language disorder caused by damage to the brain's language centers, often due to stroke, injury, or disease. It impairs speaking, understanding, reading, and writing, and can co-occur with speech disorders like dysarthria or apraxia. While most common in middle-aged or older adults, it can affect anyone. Expressive aphasia (Broca's) causes difficulty producing speech, while Wernicke's aphasia results in fluent but often nonsensical language. Over 1 million people in the U.S. live with aphasia, with 180,000 new cases each year.</p>
+            <motion.h2
+              initial={{ y: 20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: false }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="underline decoration-primary font-semibold text-4xl text-white"
+            >
+              What is Aphrasia?
+            </motion.h2>
+            <motion.p
+              initial={{ y: 20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: false }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="max-w-3xl w-full text-lg mt-3 font-medium opacity-80 text-white"
+            >
+              Aphasia is a language disorder caused by damage to the brain's language centers, often due to stroke, injury, or disease. It impairs speaking, understanding, reading, and writing, and can co-occur with speech disorders like dysarthria or apraxia. While most common in middle-aged or older adults, it can affect anyone. Expressive aphasia (Broca's) causes difficulty producing speech, while Wernicke's aphasia results in fluent but often nonsensical language. Over 1 million people in the U.S. live with aphasia, with 180,000 new cases each year.
+            </motion.p>
           </div>
-          <img src="/aphrasia.png" alt="Aphrasia" className="object-cover w-fit max-w-[550px] rounded-xl border-2 border-primary" />
-        </div>
-      </section>
+          <motion.img
+            initial={{ x: 20, opacity: 0 }}
+            whileInView={{ x: 0, opacity: 1 }}
+            viewport={{ once: false }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            src="/aphrasia.png"
+            alt="Aphrasia"
+            className="object-cover w-fit max-w-[550px] rounded-xl border-2 border-primary"
+          />
+        </motion.div>
+      </motion.section>
     </>
   );
 }
