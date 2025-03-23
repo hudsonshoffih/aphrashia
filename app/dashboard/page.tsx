@@ -62,9 +62,8 @@ export default function Dashboard() {
               uuid: session.user.id,
               name:
                 session.user.fullName ||
-                `${session.user.firstName || ""} ${
-                  session.user.lastName || ""
-                }`.trim(),
+                `${session.user.firstName || ""} ${session.user.lastName || ""
+                  }`.trim(),
               email: session.user.emailAddresses[0]?.emailAddress,
             }),
           }
@@ -89,9 +88,8 @@ export default function Dashboard() {
   const userName =
     userData?.name ||
     session?.user?.fullName ||
-    `${session?.user?.firstName || ""} ${
-      session?.user?.lastName || ""
-    }`.trim() ||
+    `${session?.user?.firstName || ""} ${session?.user?.lastName || ""
+      }`.trim() ||
     "User";
 
   // Get current week data
@@ -119,7 +117,7 @@ export default function Dashboard() {
   const weekData = getCurrentWeekData();
 
   return isRecording ? (
-    <main className="w-screen h-screen bg-[#EAEAEA] flex items-center justify-center">
+    <main className="w-screen h-screen max-w-lg bg-[#EAEAEA] mx-auto flex items-center justify-center">
       <div className="w-[160px] h-[160px] rounded-full bg-gradient-to-tr from-primary to-secondary animate-gradient shadow-[0_0_300px] shadow-primary" />
       <div className="fixed bottom-[100px] left-0 right-0">
         <AudioRecorder
@@ -136,7 +134,7 @@ export default function Dashboard() {
       </div>
     </main>
   ) : (
-    <div className="w-screen h-screen px-[32px] py-[36px] bg-white font-display">
+    <div className="w-screen relative h-screen px-[32px]  max-w-lg py-[36px] mx-auto bg-white font-display">
       <div className="w-full flex items-center justify-between">
         <div className="flex flex-col">
           <h3 className="text-base text-gray-600 font-medium">Hello</h3>
@@ -157,15 +155,14 @@ export default function Dashboard() {
           {weekData.map((day, i) => (
             <div key={i} className="flex flex-col items-center">
               <div
-                className={`h-4 w-4 z-10 rounded-full mb-2 text-[10px] flex items-center justify-center ${
-                  day.status === "completed"
-                    ? "bg-progress-yellow"
-                    : day.status === "today"
+                className={`h-4 w-4 z-10 rounded-full mb-2 text-[10px] flex items-center justify-center ${day.status === "completed"
+                  ? "bg-progress-yellow"
+                  : day.status === "today"
                     ? "bg-white"
                     : day.status === "missed"
-                    ? "bg-white"
-                    : "bg-white/0"
-                }`}
+                      ? "bg-white"
+                      : "bg-white/0"
+                  }`}
               >
                 {day.status === "completed" ? (
                   <FaCheck className="text-white" />
@@ -174,11 +171,10 @@ export default function Dashboard() {
                 ) : null}
               </div>
               <span
-                className={`text-[10px] font-semibold ${
-                  day.status === "today"
-                    ? "bg-white rounded-full w-4 flex items-center justify-center h-4 text-orange"
-                    : "text-white/70"
-                }`}
+                className={`text-[10px] font-semibold ${day.status === "today"
+                  ? "bg-white rounded-full w-4 flex items-center justify-center h-4 text-orange"
+                  : "text-white/70"
+                  }`}
               >
                 {day.day}
               </span>
@@ -235,8 +231,8 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-      <div className="fixed bottom-0 left-0 right-0 bg-[#EAEAEA] rounded-t-4xl">
-        <div className="w-full h-full relative flex justify-center pb-[36px] pt-[50px]">
+      <div className="fixed bottom-0 left-0 right-0 ">
+        <div className="w-full h-full relative flex justify-center bg-[#EAEAEA] rounded-t-4xl pb-[36px] pt-[50px] max-w-lg mx-auto">
           <div className="absolute top-2 w-8 h-1 rounded-full bg-grey" />
           <div className="flex flex-col gap-[22px] items-center justify-center">
             <AudioRecorder
