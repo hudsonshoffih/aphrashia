@@ -30,7 +30,6 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (session?.user?.id) {
-      // Call the server-side API endpoint to set up storage
       fetch("/api/setup-storage", {
         method: "POST",
       })
@@ -92,21 +91,17 @@ export default function Dashboard() {
       }`.trim() ||
     "User";
 
-  // Get current week data
   const getCurrentWeekData = () => {
     const today = new Date();
-    const currentDayIndex = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const currentDayIndex = today.getDay(); 
     const streak = userData?.streak || 0;
 
     return DAYS.map((day, index) => {
       if (index > currentDayIndex) {
-        // Future days
         return { day, status: "future" };
       } else if (index === currentDayIndex) {
-        // Today
         return { day, status: "today" };
       } else {
-        // Past days - check against streak
         const daysAgo = currentDayIndex - index;
         const hasCompleted = daysAgo <= streak;
         return { day, status: hasCompleted ? "completed" : "missed" };

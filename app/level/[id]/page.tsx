@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { BsSoundwave } from "react-icons/bs";
 import { useSession, useUser } from "@clerk/nextjs";
 import Link from "next/link";
+import { BiLeftArrowAlt } from "react-icons/bi";
 
 
 interface SpeechRecognitionEvent extends Event {
@@ -89,7 +90,6 @@ export default function Level() {
   }, [id, user?.id]);
 
   useEffect(() => {
-    // Check microphone permission status on component mount
     if (navigator.permissions) {
       navigator.permissions
         .query({ name: "microphone" as PermissionName })
@@ -114,7 +114,6 @@ export default function Level() {
 
   const startListening = async () => {
     try {
-      // First check if browser supports speech recognition
       if (!("webkitSpeechRecognition" in window)) {
         setError(
           "Speech recognition is not supported in this browser. Please try Chrome or Edge."
@@ -122,9 +121,8 @@ export default function Level() {
         return;
       }
 
-      // Request microphone permission if not already granted
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach((track) => track.stop()); // Stop the stream immediately as we don't need it
+      stream.getTracks().forEach((track) => track.stop());
 
       const recognition = new window.webkitSpeechRecognition();
       recognition.continuous = false;
@@ -132,7 +130,7 @@ export default function Level() {
 
       recognition.onstart = () => {
         setIsListening(true);
-        setError(null); // Clear any previous errors
+        setError(null);
       };
 
       recognition.onresult = (event: SpeechRecognitionEvent) => {
@@ -142,13 +140,13 @@ export default function Level() {
         setSimilarityScore(score);
 
         fetch(`${process.env.NEXT_PUBLIC_API}/api/level_progress/${session?.user?.id}/${id}`, {
-            method: "PUT",
-            body: JSON.stringify({
-                accuracy: score
-            }),
-            headers: {
-                "Content-Type": "application/json",
-            }
+          method: "PUT",
+          body: JSON.stringify({
+            accuracy: score
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          }
         })
       };
 
@@ -188,13 +186,19 @@ export default function Level() {
 
   return (
     <main className="w-screen min-h-screen bg-white font-display flex items-center justify-center py-24">
-      <div className="fixed top-0 left-0 w-screen px-[36px] py-[32px] flex flex-col z-20 bg-primary">
-        <h1 className="text-2xl font-bold text-white">
-          Level {levelData?.title || `${id}`}
-        </h1>
-        <p className="opacity-70 text-white font-semibold">
-          Let&apos;s practice speaking
-        </p>
+      <div className="fixed top-0 left-0 w-screen px-[36px] flex flex-row items-center justify-start py-[32px] gap-4 z-20 bg-primary">
+
+        <Link href="/levels" className='text-primary bg-white p-3 rounded-full'><BiLeftArrowAlt /></Link>
+        <div>
+          <h1 className="text-2xl font-bold text-white">
+            Level {levelData?.title || `${id}`}
+          </h1>
+          <p className="opacity-70 text-white font-semibold">
+            Let&apos;s practice speaking
+          </p>
+
+        </div>
+
       </div>
 
       {error ? (
@@ -228,7 +232,7 @@ export default function Level() {
                 {similarityScore >= 50 && (
                   <div className="flex flex-col items-center gap-2">
                     <p className="text-green-500 font-semibold text-lg">Success! Well done!</p>
-                    <Link 
+                    <Link
                       href={`/level/${Number(id) + 1}`}
                       className="px-6 py-2 bg-primary text-white rounded-full font-semibold hover:opacity-90 transition-opacity"
                     >
@@ -241,11 +245,9 @@ export default function Level() {
               <button
                 onClick={startListening}
                 disabled={isListening || levelData?.is_locked}
-                className={`h-18 w-18 rounded-[30px] ${
-                  levelData?.is_locked ? "bg-gray-400" : "bg-red"
-                } ${
-                  isListening ? "animate-padding opacity-80" : ""
-                } text-white flex absolute items-center justify-center`}
+                className={`h-18 w-18 rounded-[30px] ${levelData?.is_locked ? "bg-gray-400" : "bg-red"
+                  } ${isListening ? "animate-padding opacity-80" : ""
+                  } text-white flex absolute items-center justify-center`}
               >
                 <BsSoundwave className="text-4xl" />
               </button>

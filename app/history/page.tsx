@@ -45,7 +45,7 @@ export default function History() {
             <audio src={item.audio_url} controls className='w-full' />
             <p className='text-gray-800 font-medium text-xs pl-3 mx-3 border-l-2 border-grey italic'>{item.transcription}</p>
           </div>
-        ))}
+        )).reverse()}
         {historyData.length === 0 && (
           <div className='flex-1 flex items-center justify-center'>
             <p className='text-gray-500'>No history found</p>

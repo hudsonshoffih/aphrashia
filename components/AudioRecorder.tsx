@@ -32,7 +32,6 @@ export function AudioRecorder({
     try {
       setIsUploading(true);
 
-      // Validate user ID
       if (!id) {
         setError("Authentication error: Missing user ID");
         console.error("Missing user ID for upload");
@@ -41,7 +40,6 @@ export function AudioRecorder({
 
       const supabase = createClient();
 
-      // Generate a unique filename using timestamp and user ID
       const timestamp = Date.now();
       const filename = `${id}/recording-${timestamp}.wav`;
 
@@ -49,7 +47,6 @@ export function AudioRecorder({
         `Attempting to upload audio file to bucket: audio_files path: ${filename}`
       );
 
-      // Upload the file to Supabase storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from("audio_files")
         .upload(filename, audioBlob, {
@@ -60,7 +57,6 @@ export function AudioRecorder({
       if (uploadError) {
         console.error("Upload error details:", uploadError);
 
-        // Handle specific error cases
         if (
           uploadError.message?.includes("bucket") &&
           uploadError.message?.includes("not found")
@@ -84,21 +80,19 @@ export function AudioRecorder({
 
       console.log("Upload successful:", uploadData);
 
-      // Get the public URL of the uploaded file
       const {
         data: { publicUrl },
       } = supabase.storage.from("audio_files").getPublicUrl(filename);
 
       console.log("File uploaded successfully. Public URL:", publicUrl);
 
-      // Transcribe the audio
       try {
-        const transcribeRes = await fetch("/api/whisper", {
+        const transcribeRes = await fetch(`${process.env.NEXT_PUBLIC_API}/api/url`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ data: publicUrl }),
+          body: JSON.stringify({ url: publicUrl }),
         });
 
         if (!transcribeRes.ok) {
@@ -107,13 +101,12 @@ export function AudioRecorder({
           setError(
             `Transcription failed: ${errorData.error || "Unknown error"}`
           );
-          return publicUrl; // Still return the URL even if transcription fails
+          return publicUrl;
         }
 
         const rres = await transcribeRes.json();
-        const transcription = rres.data;
+        const transcription = rres.transcription;
 
-        // Save to history table
         const { error: historyError } = await supabase.from("history").insert({
           file_name: filename,
           transcription: transcription,
@@ -132,7 +125,7 @@ export function AudioRecorder({
       } catch (transcriptionError) {
         console.error("Transcription error:", transcriptionError);
         setError("Error processing audio. Please try again.");
-        return publicUrl; // Still return the URL even if transcription fails
+        return publicUrl;
       }
     } catch (err) {
       console.error("Error in upload process:", err);
@@ -193,9 +186,8 @@ export function AudioRecorder({
       <button
         onClick={isRecording ? stopRecording : startRecording}
         disabled={isUploading}
-        className={`${isRecording ? "h-12 w-12" : "h-18 w-18"} rounded-[30px] ${
-          isUploading ? "opacity-50 cursor-not-allowed" : ""
-        } bg-red text-white flex items-center justify-center`}
+        className={`${isRecording ? "h-12 w-12" : "h-18 w-18"} rounded-[30px] ${isUploading ? "opacity-50 cursor-not-allowed" : ""
+          } bg-red text-white flex items-center justify-center`}
       >
         {isRecording ? (
           <BiStop className="text-3xl" />

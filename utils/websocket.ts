@@ -1,4 +1,4 @@
-type WSMessageType = 'transcription' | 'error' | 'status';
+type WSMessageType = 'audio' | 'audio_chunk' | 'end_stream' | 'transcription' | 'error';
 
 interface WSMessage {
     type: WSMessageType;
@@ -96,6 +96,10 @@ export class WebSocketClient {
             this.ws = null;
         }
     }
+
+    isConnected(): boolean {
+        return this.ws?.readyState === WebSocket.OPEN;
+    }
 }
 
-export const wsClient = new WebSocketClient('ws://localhost:8765');
+export const wsClient = new WebSocketClient('ws://localhost:8000/stream');
