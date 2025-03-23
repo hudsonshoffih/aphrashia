@@ -70,7 +70,7 @@ export default function Home() {
         whileInView={{ opacity: 1 }}
         viewport={{ once: false }}
         transition={{ duration: 0.6 }}
-        className="scroll-section w-screen min-h-screen gap-5 flex items-start justify-center flex-col lg:px-32 lg:py-24 px-20 py-32"
+        className="scroll-section w-screen min-h-screen bg-black gap-5 flex items-start justify-center flex-col lg:px-32 lg:py-24 px-20 py-32"
       >
         <motion.div
           initial={{ y: 20 }}
@@ -87,7 +87,7 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="underline decoration-primary font-semibold text-4xl text-white"
             >
-              What is Aphrasia?
+              What is Aphasia?
             </motion.h2>
             <motion.p
               initial={{ y: 20, opacity: 0 }}
@@ -98,6 +98,13 @@ export default function Home() {
             >
               Aphasia is a language disorder caused by damage to the brain's language centers, often due to stroke, injury, or disease. It impairs speaking, understanding, reading, and writing, and can co-occur with speech disorders like dysarthria or apraxia. While most common in middle-aged or older adults, it can affect anyone. Expressive aphasia (Broca's) causes difficulty producing speech, while Wernicke's aphasia results in fluent but often nonsensical language. Over 1 million people in the U.S. live with aphasia, with 180,000 new cases each year.
             </motion.p>
+
+            <motion.p className="text-white text-sm font-semibold -mb-4 mt-3">
+              Citations:
+            </motion.p>
+            <motion.a href="https://drive.google.com/file/d/12iuO9CP7fzs-DVg2TZyrfiwPzkvwmHDM/view?usp=sharing" target="_blank" rel="noreferrer noopener" className="text-primary font-semibold text-sm max-w-xl underline">
+              Wright HH, Shisler RJ. Working memory in aphasia: theory, measures, and clinical implications. Am J Speech Lang Pathol. 2005 May;14(2):107-18. doi: 10.1044/1058-0360(2005/012). PMID: 15989386.
+            </motion.a>
           </div>
 
           <motion.img
@@ -106,7 +113,7 @@ export default function Home() {
             viewport={{ once: false }}
             transition={{ duration: 0.5, delay: 0.5 }}
             src="/aphrasia.gif"
-            alt="Aphrasia"
+            alt="aphasia"
             className="object-cover max-lg:mt-4 w-fit max-w-[350px] lg:max-w-[550px] max-h-[70vh] rounded-xl border-2 border-primary"
           />
         </motion.div>
@@ -144,7 +151,7 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.4 }}
               className="max-w-3xl w-full text-base md:text-lg mt-3 text-justify font-medium opacity-80 text-black"
             >
-              We are providing a solution for the challenges of aphasia and other speech disorders, our goal is to help people with aphrasia and related disorder that captures real-time audio from individuals with these conditions and transcribes to understandable sentences. We transform unclear or disjointed speech into easily understandable text, breaking down communication barriers and empowering users to express themselves confidently. This solution not only improves everyday interactions but also promotes independence, inclusivity. Together, we can overcome the obstacles of aphasia and build a world where every voice is heard .
+              We are providing a solution for the challenges of aphasia and other speech disorders, our goal is to help people with aphasia and related disorder that captures real-time audio from individuals with these conditions and transcribes to understandable sentences. We transform unclear or disjointed speech into easily understandable text, breaking down communication barriers and empowering users to express themselves confidently. This solution not only improves everyday interactions but also promotes independence, inclusivity. Together, we can overcome the obstacles of aphasia and build a world where every voice is heard .
             </motion.p>
           </div>
           <motion.img

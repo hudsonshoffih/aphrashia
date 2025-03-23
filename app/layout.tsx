@@ -6,7 +6,7 @@ import type { Metadata, Viewport } from "next";
 const APP_NAME = "Aphrasis";
 const APP_DEFAULT_TITLE = "Aphrasis";
 const APP_TITLE_TEMPLATE = "%s";
-const APP_DESCRIPTION = "Aphrasis is useful to help you learn new words and phrases for people with aphrasia.";
+const APP_DESCRIPTION = "Aphrasis is useful to help you learn new words and phrases for people with aphasia.";
 
 export const metadata: Metadata = {
   applicationName: APP_NAME,
