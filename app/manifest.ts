@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#3454D1",
     lang: "en",
     background_color: "#3454D1",
-    start_url: "https://aphrasis-blush.vercel.app",
-    scope: "https://aphrasis-blush.vercel.app",
+    start_url: "https://2b8f-103-4-222-252.ngrok-free.app",
+    scope: "https://2b8f-103-4-222-252.ngrok-free.app",
     launch_handler: {
       client_mode: "focus-existing",
     },

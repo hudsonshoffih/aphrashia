@@ -125,7 +125,7 @@ export default function Home() {
         whileInView={{ opacity: 1 }}
         viewport={{ once: false }}
         transition={{ duration: 0.6 }}
-        className="scroll-section w-screen min-h-screen max-lg:h-[120vh] flex flex-col bg-white items-center justify-center lg:px-32 lg:py-24 px-20 py-12"
+        className="scroll-section w-screen min-h-screen flex flex-col bg-white items-center justify-center lg:px-32 lg:py-24 px-20 py-16"
       >
         <motion.div
           initial={{ y: 20 }}
@@ -140,7 +140,7 @@ export default function Home() {
               whileInView={{ y: 0, opacity: 1 }}
               viewport={{ once: false }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="underline decoration-primary text-left lg:text-right font-semibold text-4xl text-black"
+              className="underline decoration-primary mt-6 text-left lg:text-right font-semibold text-4xl text-black"
             >
               How we are about to solve it.
             </motion.h2>
