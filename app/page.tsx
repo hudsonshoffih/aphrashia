@@ -96,7 +96,7 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.4 }}
               className="max-w-3xl w-full text-base md:text-lg mt-3 text-justify font-medium opacity-80 text-white"
             >
-              Aphasia is a language disorder caused by damage to the brain's language centers, often due to stroke, injury, or disease. It impairs speaking, understanding, reading, and writing, and can co-occur with speech disorders like dysarthria or apraxia. While most common in middle-aged or older adults, it can affect anyone. Expressive aphasia (Broca's) causes difficulty producing speech, while Wernicke's aphasia results in fluent but often nonsensical language. Over 1 million people in the U.S. live with aphasia, with 180,000 new cases each year.
+              Aphasia is a language disorder caused by damage to the brain&apos;s language centers, often due to stroke, injury, or disease. It impairs speaking, understanding, reading, and writing, and can co-occur with speech disorders like dysarthria or apraxia. While most common in middle-aged or older adults, it can affect anyone. Expressive aphasia (Broca&apos;s) causes difficulty producing speech, while Wernicke&apos;s aphasia results in fluent but often nonsensical language. Over 1 million people in the U.S. live with aphasia, with 180,000 new cases each year.
             </motion.p>
 
             <motion.p className="text-white text-sm font-semibold -mb-4 mt-3">
