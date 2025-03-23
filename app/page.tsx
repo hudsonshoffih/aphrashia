@@ -118,7 +118,7 @@ export default function Home() {
         whileInView={{ opacity: 1 }}
         viewport={{ once: false }}
         transition={{ duration: 0.6 }}
-        className="scroll-section w-screen min-h-screen h-[120vh] flex flex-col bg-white items-center justify-center lg:px-32 lg:py-24 px-20 py-12"
+        className="scroll-section w-screen min-h-screen max-lg:h-[120vh] flex flex-col bg-white items-center justify-center lg:px-32 lg:py-24 px-20 py-12"
       >
         <motion.div
           initial={{ y: 20 }}
