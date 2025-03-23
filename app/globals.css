@@ -108,6 +108,9 @@
   }
 }
 
+* {
+  font-family: var(--font-display);
+}
 body {
   color: var(--text-primary);
   background: var(--background);
